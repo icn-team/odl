@@ -18,6 +18,6 @@ RUN pip3 install requests && pip3 install avro-python3 && pip3 install kafka && 
 
 RUN mkdir cntrl
 
-COPY config.xml odl.py cntrl/
+COPY config.xml odl.py tnode.xml cntrl/
 
 WORKDIR /hicn
