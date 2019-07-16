@@ -6,5 +6,6 @@ This is the Docker file to build hICN VNF demo. Please follow the following inst
 * Install required feature   
     * feature:install odl-netconf-all odl-netconf-connector odl-restconf-all odl-netconf-topology
 * run the odl.py script to push the configuration
-    *  cd /hicn/cntrl/ && ./odl.py
+    *  cd /hicn/cntrl/ && ./odl.py -act add
+    *  ./odl.py -act [face|punt|route]
 
