@@ -9,24 +9,19 @@ import xml.etree.ElementTree as ET
 
 from time import sleep
 
-
 # Parsing argument
 parser = argparse.ArgumentParser(description='Mounting nodes to ODL')
 parser.add_argument('-act', action="store",  dest='act',
                     help='Indicate your operation')
 results = parser.parse_args()
 
+# acceptable response code
 SUCCESS = [200,201,202]
-lip6=0
-rip6=0
-swif=0
-ip6=0
 
 # Mount point names
 nodes = ['remote']
-face_list = ['face_ids1','face_ids2','face_ids3','face_ids4','face_ids5','face_ids6']
-print('Applying configuration')
 
+# Action functions [mounting, facing, punting, routing]
 def mounting():
  for node in nodes:
    response= None
@@ -61,6 +56,7 @@ def mounting():
 
 
 def facing():
+# hicn add face API parameters
   lip6=0
   rip6=0
   swif=0
@@ -109,14 +105,13 @@ def facing():
          filename='face.xml'
          response = requests.post(url, auth=('admin', 'admin'),data=open(filename).read(),headers=headers)
          if response.status_code in SUCCESS:
-             bar.update(barcount+1)
-             barcount=barcount+1
              sleep(0.1)
          else:
              print('operation failed'+str(node)+response.text)
 
 
 def punting():
+# hicn add punt API parameters
   ip6=0
   lent=0
   swif=0
@@ -161,8 +156,6 @@ def punting():
 
          response = requests.post(url, auth=('admin', 'admin'),data=open(filename).read(),headers=headers)
          if response.status_code in SUCCESS:
-               bar.update(barcount+1)
-               barcount=barcount+1
                sleep(0.1)
          else:
                print('operation failed'+str(node)+response.text)
@@ -170,9 +163,11 @@ def punting():
 
 
 def routing():
+# hicn add route API parameters
  prefix=0
  lent=0
  faceid=0
+ face_list = ['face_ids1','face_ids2','face_ids3','face_ids4','face_ids5','face_ids6']
  for node in nodes:
       response=None
       url=None
@@ -226,11 +221,14 @@ def routing():
 
          response = requests.post(url, auth=('admin', 'admin'),data=open(filename).read(),headers=headers)
          if response.status_code in SUCCESS:
-               bar.update(barcount+1)
-               barcount=barcount+1
                sleep(0.1)
          else:
                print('operation failed'+str(node)+response.text)
+
+
+# parsing actions
+
+print('Applying configuration')
 
 # Mounting node to odl
 if str(results.act)=='add' or str(results.act)=='del':
