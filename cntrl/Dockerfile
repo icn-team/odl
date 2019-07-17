@@ -1,8 +1,6 @@
 FROM ubuntu:18.04
 
 WORKDIR /hicn
-ENV ODL_VERSION=opendaylight-0.9.2.zip
-ENV ODL_URL=https://nexus.opendaylight.org/content/repositories/public/org/opendaylight/integration/opendaylight/0.9.2/${ODL_VERSION}
 
 # Use bash shell
 SHELL ["/bin/bash", "-c"]
