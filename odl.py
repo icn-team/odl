@@ -232,10 +232,8 @@ def routing():
          else:
                print('operation failed'+str(node)+response.text)
 
-
-print('Usage -act [face|punt|route|add|del]')
 # Mounting node to odl
-if str(results.act)!='face' and str(results.act)!='punt' and str(results.act)!='route':
+if str(results.act)=='add' or str(results.act)=='del':
  mounting()
 
 # Adding face to the remote node
@@ -249,3 +247,6 @@ elif str(results.act)=='punt':
 # Adding route to the remote node
 elif str(results.act)=='route':
  routing()
+
+else:
+ print('Usage -act [face|punt|route|add|del]')
