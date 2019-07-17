@@ -1,5 +1,5 @@
 # Control plane 
-This is the Docker file to build hICN VNF demo. Please follow the following instruction. You can find the configuration in config.xml file including (mounting, adding face, adding punt, adding route).
+This is the Dockerfile to build odl with single node configuration. You can find the configuration in config.xml file including (mounting, adding face, adding punt, adding route). Please, follow the following steps:
 
 * Run opendaylight 
     * /hicn/opendaylight-0.9.2/bin && ./karaf
