@@ -6,7 +6,7 @@ import time
 import argparse
 import sys
 import xml.etree.ElementTree as ET
-
+from influxdb import InfluxDBClient
 from time import sleep
 
 # Parsing argument
@@ -226,7 +226,101 @@ def routing():
                print('operation failed'+str(node)+response.text)
 
 
-# parsing actions
+def telemetrying():
+# Parameters for computing the telemetry
+ TX=0
+ RX=1
+ itx=0
+ irx=0
+ drx=0
+ dtx=0
+ faceid=0
+ flag=0
+
+ link={'sc-sl':(0,0),'sc-cc':(0,0),'sl-cl1':(0,0),'sl-cl2':(0,0)}
+ old={'sc-sl':(0,0),'sc-cc':(0,0),'sl-cl1':(0,0),'sl-cl2':(0,0)}
+
+# Set up a client for InfluxDB
+ dbclient = InfluxDBClient('10.100.95.111', 8086, 'admin', 'masmas', 'demo_clus')
+
+ while True:
+   for node in nodes:
+      response=None
+      url=None
+      url = 'http://localhost:8181/restconf/operational/network-topology:network-topology/topology/topology-netconf/node/'+str(node)+'/yang-ext:mount'
+      headers = {'content-type': 'application/xml','accept':'application/xml'}
+      response = requests.get(url, auth=('admin', 'admin'),headers=headers)
+      if response.status_code in SUCCESS:
+         receiveTime=datetime.datetime.utcnow()
+         root = ET.fromstring(response.text)
+         for hicn in root.findall("./{urn:sysrepo:hicn}hicn-state"):
+            for faces in hicn.findall('{urn:sysrepo:hicn}faces'):
+               for face in faces:
+                  for elem in face:
+                     if elem.tag=='{urn:sysrepo:hicn}faceid':
+                           faceid=int(elem.text)
+                     if elem.tag=='{urn:sysrepo:hicn}drx_bytes':
+                           drx=int(elem.text)
+                     if elem.tag=='{urn:sysrepo:hicn}dtx_bytes':
+                           dtx=int(elem.text)
+                     if elem.tag=='{urn:sysrepo:hicn}irx_bytes':
+                           irx=int(elem.text)
+                     if elem.tag=='{urn:sysrepo:hicn}itx_bytes':
+                           itx=int(elem.text)
+
+                  if node=='sc' and faceid==0:
+                     link['sc-sl']=((dtx+itx)-old['sc-sl'][TX],(drx+irx)-old['sc-sl'][RX])
+                     old['sc-sl']=((dtx+itx),(drx+irx))
+                     val=(link['sc-sl'][TX]+link['sc-sl'][RX])*8
+                     label='sc-sl'
+                     flag=1
+
+                  if node=='sc' and faceid==1:
+                     link['sc-cc']=((dtx+itx)-old['sc-cc'][TX],(drx+irx)-old['sc-cc'][RX])
+                     old['sc-cc']=((dtx+itx),(drx+irx))
+                     val=(link['sc-cc'][TX]+link['sc-cc'][RX])*8
+                     label='sc-cc'
+                     flag=1
+
+                  if node=='sl' and faceid==0:
+                     link['sl-cl1']=((dtx+itx)-old['sl-cl1'][TX],(drx+irx)-old['sl-cl1'][RX])
+                     old['sl-cl1']=((dtx+itx),(drx+irx))
+                     val=(link['sl-cl1'][TX]+link['sl-cl1'][RX])*8
+                     label='sl-cl1'
+                     flag=1
+
+                  if node=='sl' and faceid==1:
+                     link['sl-cl2']=((dtx+itx)-old['sl-cl2'][TX],(drx+irx)-old['sl-cl2'][RX])
+                     old['sl-cl2']=((dtx+itx),(drx+irx))
+                     val=(link['sl-cl2'][TX]+link['sl-cl2'][RX])*8
+                     label='sl-cl2'
+                     flag=1
+
+
+                  if flag==1:
+                     json_body = [
+                            {
+                                "measurement": label,
+                                "time": receiveTime,
+                                "fields": {
+                                    "value": val
+                                }
+                            }
+                     ]
+
+                     try:
+                        dbclient.write_points(json_body)
+                        print("Finished writing to InfluxDB "+str(label))
+                        flag=0
+                     except Exception:
+                        print("<<<<<Error writing to InfluxDB>>>>")
+                        flag=0
+      else:
+         print('Error connecting to node: '+str(node)+str(response.status_code))
+
+   time.sleep(1)
+
+# Parsing actions
 
 print('Applying configuration')
 
@@ -246,5 +340,9 @@ elif str(results.act)=='punt':
 elif str(results.act)=='route':
  routing()
 
+# telemetrying from the remote node
+elif str(results.act)=='telem':
+ telemetrying()
+
 else:
- print('Usage -act [face|punt|route|add|del]')
+ print('Usage -act [face|punt|route|add|del|telem]')
