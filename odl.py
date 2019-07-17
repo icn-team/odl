@@ -19,9 +19,9 @@ results = parser.parse_args()
 SUCCESS = [200,201,202]
 
 # Mount point names
-nodes = ['remote']
+nodes = ['sc','sl']
 
-# Action functions [mounting, facing, punting, routing]
+# Action functions [mounting, facing, punting, routing, telemetering]
 def mounting():
  for node in nodes:
    response= None
@@ -68,46 +68,47 @@ def facing():
       for faces in root:
          if faces.tag=='faces':
            for face in faces:
-                 if face.tag=='lip6':
+             for elem in face:
+                 if elem.tag=='lip6':
                      lip6=face.text
-                 if face.tag=='rip6':
+                 if elem.tag=='rip6':
                      rip6=face.text
-                 if face.tag=='swif':
+                 if elem.tag=='swif':
                      swif=face.text
-         url = 'http://localhost:8181/restconf/operations/network-topology:network-topology/topology/topology-netconf/node/'+str(node)+'/yang-ext:mount/hicn:face-ip-add'
-         headers = {'content-type': 'application/xml','accept':'application/xml'}
+             url = 'http://localhost:8181/restconf/operations/network-topology:network-topology/topology/topology-netconf/node/'+str(node)+'/yang-ext:mount/hicn:face-ip-add'
+             headers = {'content-type': 'application/xml','accept':'application/xml'}
 
-         xtop = ET.Element('input')
-         xtop.attrib["xmlns"]="urn:sysrepo:hicn"
-         xroute = 'lip6'
-         nnode = ET.SubElement(xtop,xroute)
-         nnode.text=str(lip6)
+             xtop = ET.Element('input')
+             xtop.attrib["xmlns"]="urn:sysrepo:hicn"
+             xroute = 'lip6'
+             nnode = ET.SubElement(xtop,xroute)
+             nnode.text=str(lip6)
 
-         xroute = 'lip4'
-         nnode = ET.SubElement(xtop,xroute)
-         nnode.text='-1'
+             xroute = 'lip4'
+             nnode = ET.SubElement(xtop,xroute)
+             nnode.text='-1'
 
-         xroute = 'rip6'
-         nnode = ET.SubElement(xtop,xroute)
-         nnode.text=str(rip6)
+             xroute = 'rip6'
+             nnode = ET.SubElement(xtop,xroute)
+             nnode.text=str(rip6)
 
-         xroute = 'rip4'
-         nnode = ET.SubElement(xtop,xroute)
-         nnode.text='-1'
+             xroute = 'rip4'
+             nnode = ET.SubElement(xtop,xroute)
+             nnode.text='-1'
 
 
-         xroute = 'swif'
-         nnode = ET.SubElement(xtop,xroute)
-         nnode.text=str(swif)
+             xroute = 'swif'
+             nnode = ET.SubElement(xtop,xroute)
+             nnode.text=str(swif)
 
-         final = ET.ElementTree(xtop)
-         final.write('face.xml')
-         filename='face.xml'
-         response = requests.post(url, auth=('admin', 'admin'),data=open(filename).read(),headers=headers)
-         if response.status_code in SUCCESS:
-             sleep(0.1)
-         else:
-             print('operation failed'+str(node)+response.text)
+             final = ET.ElementTree(xtop)
+             final.write('face.xml')
+             filename='face.xml'
+             response = requests.post(url, auth=('admin', 'admin'),data=open(filename).read(),headers=headers)
+             if response.status_code in SUCCESS:
+                 sleep(0.1)
+             else:
+                 print('operation failed'+str(node)+response.text)
 
 
 def punting():
@@ -123,43 +124,43 @@ def punting():
       for puntes in root:
          if puntes.tag=='puntes':
           for punt in puntes:
-                 if punt.tag=='ip6':
-                     ip6=punt.text
-                 if punt.tag=='len':
-                     lent=punt.text
-                 if punt.tag=='swif':
-                     swif=punt.text
-         url = 'http://localhost:8181/restconf/operations/network-topology:network-topology/topology/topology-netconf/node/'+str(node)+'/yang-ext:mount/hicn:punting-add'
-         headers = {'content-type': 'application/xml','accept':'application/xml'}
+             for elem in punt:
+                 if elem.tag=='ip6':
+                     ip6=elem.text
+                 if elem.tag=='len':
+                     lent=elem.text
+                 if elem.tag=='swif':
+                     swif=elem.text
+             url = 'http://localhost:8181/restconf/operations/network-topology:network-topology/topology/topology-netconf/node/'+str(node)+'/yang-ext:mount/hicn:punting-add'
+             headers = {'content-type': 'application/xml','accept':'application/xml'}
         
-         xtop = ET.Element('input')
-         xtop.attrib["xmlns"]="urn:sysrepo:hicn"
-         xroute = 'ip6'
-         nnode = ET.SubElement(xtop,xroute)
-         nnode.text=str(ip6)
+             xtop = ET.Element('input')
+             xtop.attrib["xmlns"]="urn:sysrepo:hicn"
+             xroute = 'ip6'
+             nnode = ET.SubElement(xtop,xroute)
+             nnode.text=str(ip6)
 
-         xroute = 'ip4'
-         nnode = ET.SubElement(xtop,xroute)
-         nnode.text='-1'
+             xroute = 'ip4'
+             nnode = ET.SubElement(xtop,xroute)
+             nnode.text='-1'
 
-         xroute = 'len'
-         nnode = ET.SubElement(xtop,xroute)
-         nnode.text=str(lent)
+             xroute = 'len'
+             nnode = ET.SubElement(xtop,xroute)
+             nnode.text=str(lent)
 
-         xroute = 'swif'
-         nnode = ET.SubElement(xtop,xroute)
-         nnode.text=str(swif)
+             xroute = 'swif'
+             nnode = ET.SubElement(xtop,xroute)
+             nnode.text=str(swif)
 
-         final = ET.ElementTree(xtop)
-         final.write('punt.xml')
-         filename='punt.xml'
+             final = ET.ElementTree(xtop)
+             final.write('punt.xml')
+             filename='punt.xml'
 
-         response = requests.post(url, auth=('admin', 'admin'),data=open(filename).read(),headers=headers)
-         if response.status_code in SUCCESS:
-               sleep(0.1)
-         else:
-               print('operation failed'+str(node)+response.text)
-
+             response = requests.post(url, auth=('admin', 'admin'),data=open(filename).read(),headers=headers)
+             if response.status_code in SUCCESS:
+                   sleep(0.1)
+             else:
+                   print('operation failed'+str(node)+response.text)
 
 
 def routing():
@@ -176,57 +177,58 @@ def routing():
       for routes in root:
          if routes.tag=='routes':
            for route in routes:
-                 if route.tag=='prefix':
-                     prefix=route.text
-                 if route.tag=='len':
-                     lent=route.text
-                 if route.tag=='faceid':
-                     faceid=route.text
-         url = 'http://localhost:8181/restconf/operations/network-topology:network-topology/topology/topology-netconf/node/'+str(node)+'/yang-ext:mount/hicn:route-nhops-add'
-         headers = {'content-type': 'application/xml','accept':'application/xml'}
+             for elem in route:
+                 if elem.tag=='prefix':
+                     prefix=elem.text
+                 if elem.tag=='len':
+                     lent=elem.text
+                 if elem.tag=='faceid':
+                     faceid=elem.text
+             url = 'http://localhost:8181/restconf/operations/network-topology:network-topology/topology/topology-netconf/node/'+str(node)+'/yang-ext:mount/hicn:route-nhops-add'
+             headers = {'content-type': 'application/xml','accept':'application/xml'}
 
 
-         xtop = ET.Element('input')
-         xtop.attrib["xmlns"]="urn:sysrepo:hicn"
-         xroute = 'ip6'
-         nnode = ET.SubElement(xtop,xroute)
-         nnode.text=str(prefix)
+             xtop = ET.Element('input')
+             xtop.attrib["xmlns"]="urn:sysrepo:hicn"
+             xroute = 'ip6'
+             nnode = ET.SubElement(xtop,xroute)
+             nnode.text=str(prefix)
 
-         xroute = 'ip4'
-         nnode = ET.SubElement(xtop,xroute)
-         nnode.text='-1'
+             xroute = 'ip4'
+             nnode = ET.SubElement(xtop,xroute)
+             nnode.text='-1'
 
-         xroute = 'len'
-         nnode = ET.SubElement(xtop,xroute)
-         nnode.text=str(lent)
-
-
-         xroute = 'face_ids0'
-         nnode = ET.SubElement(xtop,xroute)
-         nnode.text=str(faceid)
-
-         for fl in face_list:
-            xroute = fl
-            nnode = ET.SubElement(xtop,xroute)
-            nnode.text='0'
-
-         xroute = 'n_faces'
-         nnode = ET.SubElement(xtop,xroute)
-         nnode.text='1'
-
-         final = ET.ElementTree(xtop)
-         final.write('route.xml')
-         filename='route.xml'
+             xroute = 'len'
+             nnode = ET.SubElement(xtop,xroute)
+             nnode.text=str(lent)
 
 
-         response = requests.post(url, auth=('admin', 'admin'),data=open(filename).read(),headers=headers)
-         if response.status_code in SUCCESS:
-               sleep(0.1)
-         else:
-               print('operation failed'+str(node)+response.text)
+             xroute = 'face_ids0'
+             nnode = ET.SubElement(xtop,xroute)
+             nnode.text=str(faceid)
+
+             for fl in face_list:
+                xroute = fl
+                nnode = ET.SubElement(xtop,xroute)
+                nnode.text='0'
+
+             xroute = 'n_faces'
+             nnode = ET.SubElement(xtop,xroute)
+             nnode.text='1'
+
+             final = ET.ElementTree(xtop)
+             final.write('route.xml')
+             filename='route.xml'
 
 
-def telemetrying():
+             response = requests.post(url, auth=('admin', 'admin'),data=open(filename).read(),headers=headers)
+             if response.status_code in SUCCESS:
+                   sleep(0.1)
+             else:
+                   print('operation failed'+str(node)+response.text)
+
+
+def telemetering():
 # Parameters for computing the telemetry
  TX=0
  RX=1
@@ -342,7 +344,7 @@ elif str(results.act)=='route':
 
 # telemetrying from the remote node
 elif str(results.act)=='telem':
- telemetrying()
+ telemetering()
 
 else:
  print('Usage -act [face|punt|route|add|del|telem]')
