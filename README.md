@@ -3,6 +3,6 @@ This is the Dockerfile to build odl. Run the docker as following:
 
 * docker run -d icnteam/odl /hicn/init.sh
   it generates #hash
-* sudo docker exec -it #hash bash 
+* docker exec -it #hash bash 
     
 
