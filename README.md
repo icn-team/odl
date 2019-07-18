@@ -1,7 +1,6 @@
-# Control plane 
-This is the Dockerfile to build odl. You can find the configuration in config.xml file including (mounting, adding face, adding punt, adding route). The odl.py allows the user to add face, punt, and route to the remote switch. Moreover, it allows to receive telemetry. The config file includes multiple tags (i.e., face, punt, route). Each tag allows to have the configuration of multiple remote switches. Please, follow the following steps:
+# Control plane (odl)
+This is the Dockerfile to build odl. Run the docker as following:
+    * docker run -d icnteam/odl /hicn/init.sh
+    * sudo docker exec -it #hash bash 
+    
 
-* Run opendaylight 
-* run the odl.py script to push the configuration
-    *  cd /hicn/cntrl/ && ./odl.py -act add
-    *  ./odl.py -act [face|punt|route|telem] (Please note that -act telem is a blocking execution to receive telemetry)
