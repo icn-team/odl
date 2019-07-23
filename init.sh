@@ -6,6 +6,7 @@ sleep 10
                                     odl-netconf-all \
                                     odl-netconf-connector \
                                     odl-restconf-all \
-                                    odl-netconf-topology
+                                    odl-netconf-topology \
+				    odl-netconf-callhome-ssh
 
 wait
